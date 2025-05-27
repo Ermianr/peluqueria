@@ -1,29 +1,8 @@
 import reflex as rx
 
-from peluqueria.components.navbar import navbar
 from peluqueria.styles.styles import BASE
-from peluqueria.views.about.about import about
-from peluqueria.views.hero.hero import hero
-from peluqueria.views.services.services import services
-from peluqueria.views.contact.contact import contact
-
-
-def index() -> rx.Component:
-    return rx.vstack(
-        navbar(),
-        hero(),
-        rx.vstack(
-            services(),
-            about(),
-            contact(),
-            max_width="85%",
-            margin_top="2rem",
-            spacing="8",
-        ),
-        spacing="0",
-        align="center"
-    )
-
+from peluqueria.pages.index import index
+from peluqueria.pages.register import register
 
 app: rx.App = rx.App(
     theme=rx.theme(
@@ -32,4 +11,3 @@ app: rx.App = rx.App(
     style=BASE, # type: ignore
     stylesheets=["/css/normalize.css"]
 )
-app.add_page(index)
