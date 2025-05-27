@@ -1,6 +1,7 @@
 import reflex as rx
 
-from peluqueria.styles.styles import Colors
+from peluqueria.components.social_icon import social_icon
+from peluqueria.styles.styles import CUSTOM_INPUT, SOLID_BUTTON, Colors
 
 
 def form_field(label: str, placeholder: str, type_input, name: str) -> rx.Component:
@@ -12,49 +13,33 @@ def form_field(label: str, placeholder: str, type_input, name: str) -> rx.Compon
             name=name,
             id=name,
             required=True,
+            style=CUSTOM_INPUT,
         ),
         direction="column",
         spacing="1",
         width="100%",
     )
 
-def info_field(icon : str, title : str, text : str) -> rx.Component:
+
+def info_field(icon: str, title: str, text: str) -> rx.Component:
     return rx.hstack(
         rx.icon(icon, color=Colors.PRIMARY_COLOR.value),
         rx.box(
             rx.heading(title, as_="h4", size="3", weight="medium"),
-            rx.text(text, color=Colors.PARAGRAPH_COLOR.value)
+            rx.text(text, color=Colors.PARAGRAPH_COLOR.value),
         ),
-        align="center"
+        align="center",
     )
 
-def time_field(days: str, hours : str) -> rx.Component:
+
+def time_field(days: str, hours: str) -> rx.Component:
     return rx.flex(
         rx.text(days, color=Colors.PARAGRAPH_COLOR.value),
         rx.text(hours, weight="medium"),
         justify="between",
-        width="100%"
+        width="100%",
     )
 
-def social_icon(icon : str) -> rx.Component:
-    return rx.flex(
-        rx.icon(
-            icon,
-            size=18,
-        ),
-        padding="0.5rem",
-        cursor="pointer",
-        border_radius="50%",
-        border = f"1px solid {Colors.PARAGRAPH_COLOR.value}",
-        color=Colors.PARAGRAPH_COLOR.value,
-        transition = "all 0.3s ease",
-        _hover = {
-            "background" : Colors.PRIMARY_COLOR.value,
-            "border" : f"1px solid {Colors.PRIMARY_COLOR.value}",
-            "color" : Colors.CUSTOM_WHITE.value,
-        },
-        align="center"
-    )
 
 def contact() -> rx.Component:
     return rx.vstack(
@@ -76,10 +61,12 @@ def contact() -> rx.Component:
                             initial="column",
                             md="row",
                         ),
-                        spacing="1"
+                        spacing="3",
+                        margin_bottom="1rem",
                     ),
                     rx.hstack(
-                        form_field("Número de Teléfono", "Tu teléfono", "tel", "phone")
+                        form_field("Número de Teléfono", "Tu teléfono", "tel", "phone"),
+                        margin_bottom="1rem",
                     ),
                     rx.flex(
                         rx.el.label("Tu Mensaje", html_for="message"),
@@ -90,16 +77,21 @@ def contact() -> rx.Component:
                             name="message",
                             id="message",
                             required=True,
+                            style=CUSTOM_INPUT,
                         ),
                         direction="column",
                         spacing="1",
+                        margin_bottom="1rem",
+                    ),
+                    rx.button(
+                        "Enviar Mensaje",
+                        type="submit",
+                        style=SOLID_BUTTON,
+                        padding_y="1.2rem",
                     ),
                     width="100%",
                 ),
-                width=rx.breakpoints(
-                    initial="100%",
-                    md="50%"
-                )
+                width=rx.breakpoints(initial="100%", md="50%"),
             ),
             rx.vstack(
                 rx.image(
@@ -107,20 +99,20 @@ def contact() -> rx.Component:
                     width="100%",
                     height="10rem",
                     object_fit="cover",
-                    border_radius="2rem"
+                    border_radius="2rem",
                 ),
                 rx.vstack(
                     rx.heading("Información de contacto", as_="h3", size="5"),
                     info_field("map-pin", "Dirección", "Cali, Calle 17 #50 - 50"),
                     info_field("phone", "Teléfono", "300 000000 - 654321"),
-                    info_field("mail", "Correo","divine@gmail.com")
+                    info_field("mail", "Correo", "divine@gmail.com"),
                 ),
                 rx.vstack(
                     rx.heading("Horario de atención", as_="h3", size="5"),
                     time_field("Lunes - Viernes", "9:00 AM - 8:00 PM"),
                     time_field("Sábado", "9:00 AM - 6:00 PM"),
                     time_field("Domingo", "10:00 AM - 5:00 PM"),
-                    width="100%"
+                    width="100%",
                 ),
                 rx.vstack(
                     rx.heading("Síguenos", as_="h3", size="5"),
@@ -128,20 +120,16 @@ def contact() -> rx.Component:
                         social_icon("instagram"),
                         social_icon("facebook"),
                         social_icon("twitter"),
-                    )
+                    ),
                 ),
-                width=rx.breakpoints(
-                    initial="100%",
-                    md="50%"
-                )
+                width=rx.breakpoints(initial="100%", md="50%"),
             ),
             direction=rx.breakpoints(
                 initial="column",
                 md="row",
             ),
             width="100%",
-            spacing="3",
-            align="center",
+            spacing="8",
         ),
         align="center",
         width="100%",
