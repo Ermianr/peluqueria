@@ -82,7 +82,7 @@ def navbar() -> rx.Component:
         bg="black",
         padding_y="1.3rem",
         padding_x="2rem",
-        position="fixed",
+        position="sticky",
         top="0",
         z_index="5",
         width="100%",

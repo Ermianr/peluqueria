@@ -1,10 +1,10 @@
 import reflex as rx
 
 from peluqueria.components.navbar import navbar
-from peluqueria.views.about.about import about
-from peluqueria.views.hero.hero import hero
-from peluqueria.views.services.services import services
-from peluqueria.views.contact.contact import contact
+from peluqueria.views.home.about.about import about
+from peluqueria.views.home.hero.hero import hero
+from peluqueria.views.home.services.services import services
+from peluqueria.views.home.contact.contact import contact
 from peluqueria.components.footer import footer
 from peluqueria.utils import lang
 
