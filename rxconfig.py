@@ -1,3 +1,6 @@
 import reflex as rx
 
-config = rx.Config(app_name="peluqueria", tailwind=None)
+config = rx.Config(
+    app_name="peluqueria", 
+    tailwind=None,
+)
