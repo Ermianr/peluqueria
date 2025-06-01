@@ -1,0 +1,29 @@
+# Crear usuario
+POST http://127.0.0.1:8000/users/
+Content-Type: application/json
+
+{
+    "first_name": "Kevin",
+    "last_name": "Garcia",
+    "email": "gilow35@gmail.com",
+    "phone": "3158425098",
+    "password" : "123"
+}
+###
+
+POST http://0.0.0.0:8000/users/
+Content-Type: application/json
+
+{
+    "first_name": "Francisca",
+    "last_name": "Rojas",
+    "email": "dewgmail.com",
+    "phone": "30000000",
+    "password" : "123"
+}
+
+###
+
+# Buscar un usuario por su ID
+GET http://0.0.0.0:8000/users/683b859eb61f98c5f02eb903
+Content-Type: application/json
