@@ -1,6 +1,6 @@
 
-reflex==0.7.13
+reflex==0.7.14
 python-dotenv==1.1.0
 pymongo==4.13.0
 bcrypt==4.3.0
-requests==2.32.3
+email-validator==2.2.0
