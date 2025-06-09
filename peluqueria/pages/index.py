@@ -1,20 +1,22 @@
 import reflex as rx
 
+from peluqueria.components.footer import footer
 from peluqueria.components.navbar import navbar
+from peluqueria.utils import lang
 from peluqueria.views.home.about.about import about
+from peluqueria.views.home.contact.contact import contact
 from peluqueria.views.home.hero.hero import hero
 from peluqueria.views.home.services.services import services
-from peluqueria.views.home.contact.contact import contact
-from peluqueria.components.footer import footer
-from peluqueria.utils import lang
+
 
 @rx.page(
-        route="/",
-        title="Inicio | Peluquería",
-        description="Reserva tu cita en nuestra peluquería y luce el estilo que mereces. Cortes, color y más, con atención personalizada.",
-        meta= [
-            {"char_set": "UTF-8"},
-        ]
+    route="/",
+    title="Inicio | Peluquería",
+    description="Reserva tu cita en nuestra peluquería y luce el estilo que mereces. Cortes, color y más, con atención personalizada.",
+    meta=[
+        {"char_set": "UTF-8"},
+        {"name": "theme_color", "content": "black"},
+    ],
 )
 def index() -> rx.Component:
     return rx.vstack(
@@ -31,5 +33,5 @@ def index() -> rx.Component:
         ),
         footer(),
         spacing="0",
-        align="center"
+        align="center",
     )
