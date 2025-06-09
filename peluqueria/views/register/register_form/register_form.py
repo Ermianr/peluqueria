@@ -5,10 +5,8 @@ import reflex as rx
 
 from peluqueria.components.form_field_password import form_field_password
 from peluqueria.components.form_field_state import form_field_state
+from peluqueria.constants import EMAIL_REGEX, PHONE_REGEX
 from peluqueria.styles.styles import SOLID_BUTTON, Colors
-
-email_regex = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-phone_regex = re.compile(r"^3\d{9}$")
 
 
 class RegisterState(rx.State):
@@ -47,7 +45,7 @@ class RegisterState(rx.State):
     def email_validation(self) -> None:
         if len(self.email_value) == 0:
             self.initial_email_error_state = "block"
-        elif re.match(email_regex, self.email_value):
+        elif re.match(EMAIL_REGEX, self.email_value):
             self.initial_email_error_state = "none"
         else:
             self.initial_email_error_state = "block"
@@ -56,7 +54,7 @@ class RegisterState(rx.State):
     def phone_validation(self) -> None:
         if len(self.phone_value) == 0:
             self.initial_phone_error_state = "block"
-        elif re.match(phone_regex, self.phone_value):
+        elif re.match(PHONE_REGEX, self.phone_value):
             self.initial_phone_error_state = "none"
         else:
             self.initial_phone_error_state = "block"
@@ -78,8 +76,8 @@ class RegisterState(rx.State):
         self.password_value = ""
         print(self.form_data)
         if (
-            re.match(phone_regex, form_data.get("phone") or "")
-            and re.match(email_regex, form_data.get("email") or "")
+            re.match(EMAIL_REGEX, form_data.get("phone") or "")
+            and re.match(PHONE_REGEX, form_data.get("email") or "")
             and len(form_data.get("first_name") or "") >= 3
             and len(form_data.get("last_name") or "") >= 3
             and len(form_data.get("password") or "") >= 8
@@ -147,7 +145,7 @@ def register_form() -> rx.Component:
                 spacing="3",
                 margin_bottom="0.5rem",
             ),
-            rx.hstack(
+            rx.box(
                 form_field_state(
                     "Correo electrónico",
                     "Tu correo",
@@ -161,7 +159,7 @@ def register_form() -> rx.Component:
                 ),
                 margin_bottom="0.5rem",
             ),
-            rx.hstack(
+            rx.box(
                 form_field_state(
                     "Número de Teléfono",
                     "Número de Teléfono",
@@ -171,11 +169,11 @@ def register_form() -> rx.Component:
                     RegisterState.phone_value,
                     RegisterState.set_phone_value,  # type: ignore
                     RegisterState.phone_validation,
-                    "Por favor, ingresa un número de teléfono colombiano valido.",
+                    "Por favor, ingresa un número de teléfono Colombiano valido.",
                 ),
                 margin_bottom="0.5rem",
             ),
-            rx.hstack(
+            rx.box(
                 form_field_password(
                     "Contraseña",
                     "Contraseña",
