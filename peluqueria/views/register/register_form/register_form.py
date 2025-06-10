@@ -105,97 +105,100 @@ class RegisterState(rx.State):
 
 
 def register_form() -> rx.Component:
-    return rx.vstack(
+    return rx.center(
         rx.vstack(
-            rx.heading("Crear nueva cuenta", as_="h1"),
-            rx.text(
-                "Crea una cuenta y comienza a agendar tus citas",
-                color=Colors.PARAGRAPH_COLOR.value,
+            rx.vstack(
+                rx.heading("Crear nueva cuenta", as_="h1"),
+                rx.text(
+                    "Crea una cuenta y comienza a agendar tus citas",
+                    color=Colors.PARAGRAPH_COLOR.value,
+                ),
             ),
+            rx.separator(),
+            rx.form(
+                rx.flex(
+                    form_field_state(
+                        "Nombre",
+                        "Nombre",
+                        "text",
+                        "first_name",
+                        RegisterState.initial_first_name_error_state,
+                        RegisterState.first_name_value,
+                        RegisterState.set_first_name_value,  # type: ignore
+                        RegisterState.first_name_validation,
+                        "Mínimo 3 caracteres.",
+                    ),
+                    form_field_state(
+                        "Apellido",
+                        "Apellido",
+                        "text",
+                        "last_name",
+                        RegisterState.initial_last_name_error_state,
+                        RegisterState.last_name_value,
+                        RegisterState.set_last_name_value,  # type: ignore
+                        RegisterState.last_name_validation,
+                        "Mínimo 3 caracteres.",
+                    ),
+                    direction=rx.breakpoints(
+                        initial="column",
+                        md="row",
+                    ),
+                    spacing="3",
+                    margin_bottom="0.5rem",
+                ),
+                rx.box(
+                    form_field_state(
+                        "Correo electrónico",
+                        "Tu correo",
+                        "email",
+                        "email",
+                        RegisterState.initial_email_error_state,
+                        RegisterState.email_value,
+                        RegisterState.set_email_value,  # type: ignore
+                        RegisterState.email_validation,
+                        "Por favor, ingresa un correo electrónico valido.",
+                    ),
+                    margin_bottom="0.5rem",
+                ),
+                rx.box(
+                    form_field_state(
+                        "Número de Teléfono",
+                        "Número de Teléfono",
+                        "tel",
+                        "phone",
+                        RegisterState.initial_phone_error_state,
+                        RegisterState.phone_value,
+                        RegisterState.set_phone_value,  # type: ignore
+                        RegisterState.phone_validation,
+                        "Por favor, ingresa un número de teléfono Colombiano valido.",
+                    ),
+                    margin_bottom="0.5rem",
+                ),
+                rx.box(
+                    form_field_password(
+                        "Contraseña",
+                        "Contraseña",
+                        "password",
+                        "password",
+                        RegisterState.initial_password_error_state,
+                        RegisterState.password_value,
+                        RegisterState.password_validation,
+                        "Por favor ingrese una contraseña de mínimo 8 caracteres.",
+                    ),
+                    margin_bottom="1rem",
+                ),
+                rx.separator(margin_bottom="1rem"),
+                rx.button(
+                    "Registrarse",
+                    type="submit",
+                    style=SOLID_BUTTON,
+                    padding_y="1.2rem",
+                ),
+                on_submit=RegisterState.handle_submit,
+            ),
+            width=rx.breakpoints(initial="80%", md="40%"),
         ),
-        rx.separator(),
-        rx.form(
-            rx.flex(
-                form_field_state(
-                    "Nombre",
-                    "Nombre",
-                    "text",
-                    "first_name",
-                    RegisterState.initial_first_name_error_state,
-                    RegisterState.first_name_value,
-                    RegisterState.set_first_name_value,  # type: ignore
-                    RegisterState.first_name_validation,
-                    "Mínimo 3 caracteres.",
-                ),
-                form_field_state(
-                    "Apellido",
-                    "Apellido",
-                    "text",
-                    "last_name",
-                    RegisterState.initial_last_name_error_state,
-                    RegisterState.last_name_value,
-                    RegisterState.set_last_name_value,  # type: ignore
-                    RegisterState.last_name_validation,
-                    "Mínimo 3 caracteres.",
-                ),
-                direction=rx.breakpoints(
-                    initial="column",
-                    md="row",
-                ),
-                spacing="3",
-                margin_bottom="0.5rem",
-            ),
-            rx.box(
-                form_field_state(
-                    "Correo electrónico",
-                    "Tu correo",
-                    "email",
-                    "email",
-                    RegisterState.initial_email_error_state,
-                    RegisterState.email_value,
-                    RegisterState.set_email_value,  # type: ignore
-                    RegisterState.email_validation,
-                    "Por favor, ingresa un correo electrónico valido.",
-                ),
-                margin_bottom="0.5rem",
-            ),
-            rx.box(
-                form_field_state(
-                    "Número de Teléfono",
-                    "Número de Teléfono",
-                    "tel",
-                    "phone",
-                    RegisterState.initial_phone_error_state,
-                    RegisterState.phone_value,
-                    RegisterState.set_phone_value,  # type: ignore
-                    RegisterState.phone_validation,
-                    "Por favor, ingresa un número de teléfono Colombiano valido.",
-                ),
-                margin_bottom="0.5rem",
-            ),
-            rx.box(
-                form_field_password(
-                    "Contraseña",
-                    "Contraseña",
-                    "password",
-                    "password",
-                    RegisterState.initial_password_error_state,
-                    RegisterState.password_value,
-                    RegisterState.password_validation,
-                    "Por favor ingrese una contraseña de mínimo 8 caracteres.",
-                ),
-                margin_bottom="0.5rem",
-            ),
-            rx.separator(margin_bottom="1rem"),
-            rx.button(
-                "Registrarse",
-                type="submit",
-                style=SOLID_BUTTON,
-                padding_y="1.2rem",
-            ),
-            on_submit=RegisterState.handle_submit,
-            width="100%",
-        ),
-        width="40%",
-        margin_top="2rem",
+        margin_y="2rem",
+        height="60vh",
+        width="100%",
     )

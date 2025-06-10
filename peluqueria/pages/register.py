@@ -17,5 +17,10 @@ from peluqueria.views.register.register_form.register_form import register_form
 )
 def register() -> rx.Component:
     return rx.vstack(
-        lang(), navbar(), register_form(), footer(), spacing="0", align="center"
+        lang(),
+        navbar(),
+        rx.box(register_form(), width="100%"),
+        footer(),
+        spacing="0",
+        align="center",
     )
