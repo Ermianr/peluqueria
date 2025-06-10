@@ -27,8 +27,14 @@ def navbar_desktop():
                     align_items="center",
                 ),
                 rx.hstack(
-                    rx.el.button("Registrarse", style=SIMPLE_BUTTON),
-                    rx.el.button("Iniciar Sesión", style=OUTLINE_BUTTON),
+                    rx.link(
+                        rx.el.button("Registrarse", style=SIMPLE_BUTTON),
+                        href="/registro",
+                    ),
+                    rx.link(
+                        rx.el.button("Iniciar Sesión", style=OUTLINE_BUTTON),
+                        href="/ingreso",
+                    ),
                     spacing="4",
                     justify="end",
                 ),
@@ -53,7 +59,9 @@ def navbar_mobile():
                     align_items="center",
                 ),
                 rx.menu.root(
-                    rx.menu.trigger(rx.icon("menu", size=30, color=Colors.CUSTOM_WHITE.value)),
+                    rx.menu.trigger(
+                        rx.icon("menu", size=30, color=Colors.CUSTOM_WHITE.value)
+                    ),
                     rx.menu.content(
                         rx.menu.item("Inicio"),
                         rx.menu.item("Servicios"),
