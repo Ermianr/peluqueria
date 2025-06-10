@@ -1,26 +1,30 @@
+from datetime import datetime
+
 import reflex as rx
 
 from peluqueria.components.navbar_link import navbar_link
 from peluqueria.components.social_icon import social_icon
 from peluqueria.styles.styles import Colors
-from datetime import datetime
+
 
 def footer_items_1() -> rx.Component:
     return rx.flex(
         rx.heading(
-            "NAVEGACIÓN", size="4", weight="bold", as_="h3", color=Colors.CUSTOM_WHITE.value
+            "NAVEGACIÓN",
+            size="4",
+            weight="bold",
+            as_="h3",
+            color=Colors.CUSTOM_WHITE.value,
         ),
         navbar_link("Inicio", "/#"),
         navbar_link("Servicios", "/#"),
         navbar_link("Nosotros", "/#"),
         navbar_link("Contacto", "/#"),
         spacing="4",
-        text_align=rx.breakpoints(
-            initial="center",
-            lg="start"
-        ),
-        direction="column"
+        text_align=rx.breakpoints(initial="center", lg="start"),
+        direction="column",
     )
+
 
 def socials() -> rx.Component:
     return rx.flex(
@@ -28,7 +32,8 @@ def socials() -> rx.Component:
         social_icon("facebook"),
         social_icon("twitter"),
         spacing="4",
-    )   
+    )
+
 
 def footer() -> rx.Component:
     return rx.el.footer(
@@ -40,7 +45,7 @@ def footer() -> rx.Component:
                             "divine",
                             size="7",
                             weight="bold",
-                            color=Colors.CUSTOM_WHITE.value
+                            color=Colors.CUSTOM_WHITE.value,
                         ),
                         align_items="center",
                     ),
@@ -49,21 +54,15 @@ def footer() -> rx.Component:
                         size="3",
                         white_space="nowrap",
                         weight="medium",
-                        color=Colors.PARAGRAPH_COLOR.value
+                        color=Colors.PARAGRAPH_COLOR.value,
                     ),
                     spacing="4",
-                    align_items=rx.breakpoints(
-                        initial="center",
-                        lg="start"
-                    ),
+                    align_items=rx.breakpoints(initial="center", lg="start"),
                 ),
                 footer_items_1(),
                 justify="center",
                 spacing="9",
-                flex_direction=rx.breakpoints(
-                    initial="column",
-                    lg="row"
-                ),
+                flex_direction=rx.breakpoints(initial="column", lg="row"),
                 width="100%",
             ),
             rx.divider(bg=Colors.PARAGRAPH_COLOR.value),
@@ -74,9 +73,8 @@ def footer() -> rx.Component:
             ),
             spacing="5",
             width="100%",
-            padding="2rem"
+            padding="2rem",
         ),
         width="100%",
         bg="black",
-        margin_top="2rem"
     )
