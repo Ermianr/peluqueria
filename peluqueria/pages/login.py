@@ -15,7 +15,15 @@ from peluqueria.views.login.login_form.login_form import login_form
         {"name": "theme_color", "content": "black"},
     ],
 )
-def register() -> rx.Component:
+def login() -> rx.Component:
     return rx.vstack(
-        lang(), navbar(), login_form(), footer(), spacing="0", align="center"
+        lang(),
+        navbar(),
+        rx.box(
+            login_form(),
+            width="100%",
+        ),
+        footer(),
+        spacing="0",
+        align="center",
     )
