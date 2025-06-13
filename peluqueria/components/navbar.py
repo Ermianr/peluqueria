@@ -1,6 +1,7 @@
 import reflex as rx
 
 from peluqueria.components.navbar_link import navbar_link
+from peluqueria.state.global_state import AuthState
 from peluqueria.styles.styles import OUTLINE_BUTTON, SIMPLE_BUTTON, Colors
 
 
@@ -26,17 +27,34 @@ def navbar_desktop():
                     ),
                     align_items="center",
                 ),
-                rx.hstack(
-                    rx.link(
-                        rx.el.button("Registrarse", style=SIMPLE_BUTTON),
-                        href="/registro",
+                rx.cond(
+                    AuthState.is_authenticated,
+                    rx.hstack(
+                        rx.text(
+                            "Hola, ",
+                            AuthState.user_data.get("first_name", "Usuario"),
+                            color=Colors.CUSTOM_WHITE,
+                        ),
+                        rx.el.button(
+                            "Cerrar Sesión",
+                            style=OUTLINE_BUTTON,
+                            on_click=AuthState.logout,
+                        ),
+                        spacing="4",
+                        justify="end",
                     ),
-                    rx.link(
-                        rx.el.button("Iniciar Sesión", style=OUTLINE_BUTTON),
-                        href="/ingreso",
+                    rx.hstack(
+                        rx.link(
+                            rx.el.button("Registrarse", style=SIMPLE_BUTTON),
+                            href="/registro",
+                        ),
+                        rx.link(
+                            rx.el.button("Iniciar Sesión", style=OUTLINE_BUTTON),
+                            href="/ingreso",
+                        ),
+                        spacing="4",
+                        justify="end",
                     ),
-                    spacing="4",
-                    justify="end",
                 ),
                 justify="between",
                 align_items="center",
