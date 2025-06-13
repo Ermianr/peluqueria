@@ -5,6 +5,7 @@ import reflex as rx
 from peluqueria.components.form_field_password import form_field_password
 from peluqueria.components.form_field_state import form_field_state
 from peluqueria.constants import EMAIL_REGEX
+from peluqueria.state.global_state import AuthState
 from peluqueria.styles.styles import SOLID_BUTTON, Colors
 
 
@@ -15,7 +16,7 @@ class LoginState(rx.State):
     email_value: str = ""
 
     initial_password_error_state: str = "none"
-    password_value = ""
+    password_value: str = ""
 
     @rx.event
     def email_validation(self) -> None:
@@ -30,13 +31,24 @@ class LoginState(rx.State):
     def password_validation(self, value: str) -> None:
         self.password_value = value
         if len(self.password_value) >= 8:
-            self.initial_password_error_state: str = "none"
+            self.initial_password_error_state = "none"
         else:
-            self.initial_password_error_state: str = "block"
+            self.initial_password_error_state = "block"
 
     @rx.event
     async def handle_submit(self, form_data: dict):
-        pass
+        self.email_value = ""
+        self.password_value = ""
+
+        if (
+            re.match(EMAIL_REGEX, form_data.get("email") or "")
+            and len(form_data.get("password") or "") >= 8
+        ):
+            auth_state = await self.get_state(AuthState)
+            async for action in auth_state.login(
+                form_data["email"], form_data["password"]
+            ):
+                yield action
 
 
 def login_form() -> rx.Component:
@@ -67,7 +79,7 @@ def login_form() -> rx.Component:
                 ),
                 rx.box(
                     form_field_password(
-                        "Contrasñea",
+                        "Contraseña",
                         "Contraseña",
                         "password",
                         "password",
@@ -80,10 +92,11 @@ def login_form() -> rx.Component:
                 ),
                 rx.separator(margin_bottom="1rem"),
                 rx.button(
-                    "Registrarse",
+                    rx.cond(AuthState.loading, rx.spinner(size="2"), "Iniciar Sesión"),
                     type="submit",
                     style=SOLID_BUTTON,
                     padding_y="1.2rem",
+                    disabled=AuthState.loading,
                 ),
                 on_submit=LoginState.handle_submit,
             ),
