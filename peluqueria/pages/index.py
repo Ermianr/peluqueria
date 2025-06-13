@@ -2,6 +2,7 @@ import reflex as rx
 
 from peluqueria.components.footer import footer
 from peluqueria.components.navbar import navbar
+from peluqueria.state.global_state import AuthState
 from peluqueria.utils import lang
 from peluqueria.views.home.about.about import about
 from peluqueria.views.home.contact.contact import contact
@@ -17,6 +18,7 @@ from peluqueria.views.home.services.services import services
         {"char_set": "UTF-8"},
         {"name": "theme_color", "content": "black"},
     ],
+    on_load=AuthState.check_auth,
 )
 def index() -> rx.Component:
     return rx.vstack(
