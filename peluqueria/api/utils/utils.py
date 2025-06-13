@@ -1,8 +1,9 @@
 import bcrypt
+from fastapi import HTTPException, status
 
 from peluqueria.api.db.db_connect import db
-from peluqueria.api.models.user import UserFindResponse
-from peluqueria.api.schemas.user import find_user_schema
+from peluqueria.api.models.user import UserInDB, UserResponse
+from peluqueria.api.schemas.user import user_db_response_schema, user_response_schema
 
 
 def hash_password(password: str) -> str:
@@ -10,9 +11,34 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
-async def search_user(field: str, key) -> UserFindResponse | dict[str, str]:
-    try:
-        user = await db.users.find_one({field: key})
-        return UserFindResponse(**find_user_schema(user))
-    except:
-        return {"error": "User not found"}
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
+    )
+
+
+async def check_if_user_exist(email: str) -> bool:
+    user = await db.users.find_one({"email": email})
+    return user is not None
+
+
+async def search_user(field: str, key) -> UserResponse:
+    user = await db.users.find_one({field: key})
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+        )
+
+    return UserResponse(**user_response_schema(user))
+
+
+async def search_user_db(field: str, key) -> UserInDB:
+    user = await db.users.find_one({field: key})
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return UserInDB(**user_db_response_schema(user))
