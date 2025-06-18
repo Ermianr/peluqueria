@@ -4,13 +4,11 @@ from peluqueria.styles.styles import CUSTOM_INPUT
 
 
 def form_field_password(
-    label: str,
+    label,
     placeholder: str,
     type_input,
     name: str,
-    initial_error_state: str,
-    value: str,
-    event,
+    error_state: str,
     error_message: str,
 ) -> rx.Component:
     return rx.flex(
@@ -21,10 +19,8 @@ def form_field_password(
             name=name,
             id=name,
             style=CUSTOM_INPUT,
-            value=value,
-            on_change=event,
         ),
-        rx.text(error_message, display=initial_error_state, color="red"),
+        rx.text(error_message, display=error_state, color="red"),
         direction="column",
         spacing="1",
         width="100%",
