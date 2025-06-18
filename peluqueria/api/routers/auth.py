@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt import InvalidTokenError
 
 from peluqueria.api.models.auth import Token
-from peluqueria.api.models.user import UserInDB, UserResponse
+from peluqueria.api.models.user import UserInDBResponse, UserResponse
 from peluqueria.api.utils.utils import search_user_db, verify_password
 
 ALGORITHM = "HS256"
@@ -29,7 +29,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserInDB:
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> UserInDBResponse:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -52,8 +54,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 
 
 async def get_current_active_user(
-    current_user: Annotated[UserInDB, Depends(get_current_user)],
-) -> UserInDB:
+    current_user: Annotated[UserInDBResponse, Depends(get_current_user)],
+) -> UserInDBResponse:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -62,18 +64,18 @@ async def get_current_active_user(
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     try:
-        user: UserInDB = await search_user_db("email", form_data.username)
+        user: UserInDBResponse = await search_user_db("email", form_data.username)
     except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username.",
+            detail="Correo incorrecto.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect password.",
+            detail="Contraseña incorrecta.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -85,15 +87,16 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
 @router.get("/me", response_model=UserResponse)
 async def me(
-    current_user: Annotated[UserInDB, Depends(get_current_active_user)],
-) -> UserResponse:
+    current_user: Annotated[UserInDBResponse, Depends(get_current_active_user)],
+):
     return UserResponse(
         id=str(current_user.id),
+        role=current_user.role,
         first_name=current_user.first_name,
         last_name=current_user.last_name,
         email=current_user.email,
         phone=current_user.phone,
         is_active=current_user.is_active,
-        created_at=current_user.created_at or datetime.now(timezone.utc),
-        updated_at=current_user.updated_at or datetime.now(timezone.utc),
+        created_at=current_user.created_at,
+        updated_at=current_user.updated_at,
     )
