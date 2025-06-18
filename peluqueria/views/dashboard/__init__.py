@@ -1,0 +1,2 @@
+from peluqueria.views.dashboard.services_manager.services_manager import services_manage
+from peluqueria.views.dashboard.users_manager.users_manage import users_manage
