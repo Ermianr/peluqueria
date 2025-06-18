@@ -30,7 +30,7 @@ def index() -> rx.Component:
             about(),
             contact(),
             max_width="85%",
-            margin_top="2rem",
+            margin_y="2rem",
             spacing="8",
         ),
         footer(),
