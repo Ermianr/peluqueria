@@ -117,4 +117,5 @@ def contact() -> rx.Component:
         ),
         align="center",
         width="100%",
+        id="contact",
     )
