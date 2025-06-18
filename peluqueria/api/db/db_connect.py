@@ -1,9 +1,10 @@
-import os
-
-from dotenv import load_dotenv
 from pymongo import AsyncMongoClient
 
-load_dotenv()
+from peluqueria.settings import Settings
 
-client = AsyncMongoClient(os.getenv("MONGO_DB_URI"))
-db = client[str(os.getenv("MONGO_DB_NAME"))]
+client = AsyncMongoClient(Settings.MONGO_DB_URI)
+db = client[Settings.MONGO_DB_NAME]
+
+
+async def create_indexes() -> None:
+    await db["users"].create_index("email", unique=True)
