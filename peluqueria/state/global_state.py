@@ -1,7 +1,8 @@
 import httpx
 import reflex as rx
+from reflex.event import EventSpec
 
-API_BASE_URL = "http://localhost:8000"
+from peluqueria.settings import Settings
 
 
 class AuthState(rx.State):
@@ -15,6 +16,7 @@ class AuthState(rx.State):
     is_authenticated: bool = False
     user_data: dict = {}
     loading: bool = False
+    loading_auth: bool = True
 
     # Obtener datos del usuario
     @rx.event
@@ -27,7 +29,7 @@ class AuthState(rx.State):
         self.loading = True
 
         try:
-            async with httpx.AsyncClient(base_url=API_BASE_URL) as client:
+            async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
                 response = await client.get(
                     "/auth/me",
                     headers={"Authorization": f"Bearer {self.access_token}"},
@@ -54,7 +56,7 @@ class AuthState(rx.State):
         self.loading = True
 
         try:
-            async with httpx.AsyncClient(base_url=API_BASE_URL) as client:
+            async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
                 form_data = {"username": email, "password": password}
 
                 response = await client.post(
@@ -76,11 +78,11 @@ class AuthState(rx.State):
                     self.is_authenticated = False
                     self.user_data = {}
         except httpx.RequestError:
-            yield rx.toast.error("Error de conexión al servidor")
+            yield rx.toast.error("Error: Error de conexión al servidor")
             self.is_authenticated = False
             self.user_data = {}
         except Exception:
-            yield rx.toast.error("Error inesperado")
+            yield rx.toast.error("Error: Error inesperado")
             self.is_authenticated = False
             self.user_data = {}
         finally:
@@ -90,6 +92,7 @@ class AuthState(rx.State):
     async def logout(self):
         self.loading = True
         self.access_token = ""
+        rx.remove_cookie("plqid")
         self.user_data = {}
         self.is_authenticated = False
         self.loading = False
@@ -97,5 +100,11 @@ class AuthState(rx.State):
         yield rx.redirect("/")
 
     @rx.event
-    async def check_auth(self):
+    async def check_auth(self) -> None:
         await self.get_user_data()
+
+    @rx.event
+    def check_auth_protect_login(self) -> EventSpec | None:
+        self.loading_auth = False
+        if self.is_authenticated:
+            return rx.redirect("/")
