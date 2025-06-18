@@ -2,6 +2,8 @@ import reflex as rx
 
 from peluqueria.components.footer import footer
 from peluqueria.components.navbar import navbar
+from peluqueria.components.protect_auth_login import protect_auth_login
+from peluqueria.state.global_state import AuthState
 from peluqueria.utils import lang
 from peluqueria.views.login.login_form.login_form import login_form
 
@@ -14,16 +16,19 @@ from peluqueria.views.login.login_form.login_form import login_form
         {"char_set": "UTF-8"},
         {"name": "theme_color", "content": "black"},
     ],
+    on_load=AuthState.check_auth_protect_login,
 )
 def login() -> rx.Component:
-    return rx.vstack(
-        lang(),
-        navbar(),
-        rx.box(
-            login_form(),
-            width="100%",
+    return protect_auth_login(
+        rx.vstack(
+            lang(),
+            navbar(),
+            rx.box(
+                login_form(),
+                width="100%",
+            ),
+            footer(),
+            spacing="0",
+            align="center",
         ),
-        footer(),
-        spacing="0",
-        align="center",
     )
