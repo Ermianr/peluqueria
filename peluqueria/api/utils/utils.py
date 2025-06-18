@@ -2,7 +2,7 @@ import bcrypt
 from fastapi import HTTPException, status
 
 from peluqueria.api.db.db_connect import db
-from peluqueria.api.models.user import UserInDB, UserResponse
+from peluqueria.api.models.user import UserInDBResponse, UserResponse
 from peluqueria.api.schemas.user import user_db_response_schema, user_response_schema
 
 
@@ -33,7 +33,7 @@ async def search_user(field: str, key) -> UserResponse:
     return UserResponse(**user_response_schema(user))
 
 
-async def search_user_db(field: str, key) -> UserInDB:
+async def search_user_db(field: str, key) -> UserInDBResponse:
     user = await db.users.find_one({field: key})
 
     if not user:
@@ -41,4 +41,4 @@ async def search_user_db(field: str, key) -> UserInDB:
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    return UserInDB(**user_db_response_schema(user))
+    return UserInDBResponse(**user_db_response_schema(user))
