@@ -11,7 +11,7 @@ class AboutBadgesState(rx.State):
             "title": "Experiencia",
             "text": "Profesionales certificados",
         },
-        {"icon": "heart", "title": "Ambiente", "text": "Atmosfera de lujo"},
+        {"icon": "heart", "title": "Ambiente", "text": "Atmósfera de lujo"},
     ]
 
 
@@ -80,4 +80,5 @@ def about() -> rx.Component:
             initial="column",
             md="row",
         ),
+        id="about",
     )
