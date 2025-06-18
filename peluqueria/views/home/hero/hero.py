@@ -1,6 +1,6 @@
 import reflex as rx
 
-from peluqueria.styles.styles import Colors, SOLID_BUTTON, OUTLINE_WHITE
+from peluqueria.styles.styles import OUTLINE_WHITE, SOLID_BUTTON, Colors
 
 
 def hero() -> rx.Component:
@@ -30,7 +30,7 @@ def hero() -> rx.Component:
             width=rx.breakpoints(initial="90%", lg="50%"),
             spacing="5",
         ),
-        height="100vh",
+        min_height="100vh",
         width="100%",
         bg="linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)) , url('/img/banner.webp') no-repeat center center / cover;",
     )
