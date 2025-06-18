@@ -1,12 +1,8 @@
 from datetime import datetime
-from typing import Annotated
 
-from pydantic import BaseModel, EmailStr, StringConstraints
+from pydantic import BaseModel, EmailStr
 
-from peluqueria.constants import PHONE_REGEX
-
-Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=4)]
-Phone = Annotated[str, StringConstraints(pattern=PHONE_REGEX)]
+from peluqueria.api.models.types import DateCo, Name, Phone
 
 
 class User(BaseModel):
@@ -21,15 +17,28 @@ class UserCreate(User):
 
 
 class UserInDB(User):
-    id: str | None = None
+    role: str
     hashed_password: str
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    created_at: datetime
+    updated_at: datetime
     is_active: bool = True
+
+
+class UserInDBResponse(UserInDB):
+    id: str
 
 
 class UserResponse(User):
     id: str
-    created_at: datetime
-    updated_at: datetime
+    role: str
+    created_at: DateCo
+    updated_at: DateCo
     is_active: bool
+
+
+class UserUpdateAdmin(BaseModel):
+    first_name: Name | None = None
+    last_name: Name | None = None
+    email: EmailStr | None = None
+    phone: Phone | None = None
+    is_active: bool | None = None
