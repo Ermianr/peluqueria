@@ -35,14 +35,13 @@ NAVBAR_LINK: dict[str, Any] = {
 # SIMPLE button
 SIMPLE_BUTTON: dict[str, Any] = {
     "padding_y": "0.6rem",
-    "border" : "none",
+    "border": "none",
+    "cursor": "pointer",
     "font_size": "1rem",
-    "background" : "transparent",
-    "color" : Colors.CUSTOM_WHITE.value,
-    "transition" : "color 0.3s ease",
-    "_hover" : {
-        "color" : Colors.PRIMARY_COLOR.value
-    }
+    "background": "transparent",
+    "color": Colors.CUSTOM_WHITE.value,
+    "transition": "color 0.3s ease",
+    "_hover": {"color": Colors.PRIMARY_COLOR.value},
 }
 
 # OUTLINE button
@@ -51,24 +50,29 @@ OUTLINE_BUTTON: dict[str, Any] = {
     "border": "2px solid " + Colors.PRIMARY_COLOR.value,
     "padding_y": "0.6rem",
     "padding_x": "2rem",
-    "border_radius" : "2rem",
+    "border_radius": "2rem",
+    "cursor": "pointer",
     "font_weight": "normal",
     "color": Colors.PRIMARY_COLOR.value,
     "font_size": "1rem",
     "transition": "background 0.3s ease, color 0.3s ease",
     "_hover": {
         "background": Colors.PRIMARY_COLOR.value,
-        "color" : Colors.CUSTOM_WHITE.value
+        "color": Colors.CUSTOM_WHITE.value,
     },
 }
 
 # SOLID button
 SOLID_BUTTON: dict[str, Any] = {
+    "display": "flex",
     "background": Colors.PRIMARY_COLOR.value,
     "border": "1px solid " + Colors.PRIMARY_COLOR.value,
     "padding_y": "1rem",
     "padding_x": "1rem",
-    "border_radius" : "2rem",
+    "border_radius": "2rem",
+    "cursor": "pointer",
+    "align_items": "center",
+    "justify_content": "center",
     "font_weight": "normal",
     "color": Colors.CUSTOM_WHITE.value,
     "font_size": "1rem",
@@ -79,32 +83,33 @@ SOLID_BUTTON: dict[str, Any] = {
     },
 }
 
-#OUTLINE BUTTON WHITE
+# OUTLINE BUTTON WHITE
 OUTLINE_WHITE = {
     "background": "transparent",
     "border": "2px solid " + Colors.CUSTOM_WHITE.value,
     "padding_y": "1rem",
     "padding_x": "2rem",
-    "border_radius" : "2rem",
+    "border_radius": "2rem",
+    "cursor": "pointer",
     "font_weight": "normal",
     "color": Colors.CUSTOM_WHITE.value,
     "font_size": "1rem",
     "transition": "background 0.3s ease, color 0.3s ease",
     "_hover": {
         "background": Colors.CUSTOM_WHITE.value,
-        "color" : Colors.PRIMARY_COLOR.value
+        "color": Colors.PRIMARY_COLOR.value,
     },
 }
 
 # CUSTOM INPUT
 CUSTOM_INPUT: dict[str, Any] = {
-    "border_radius" : "0.5rem",
-    "border" : f"1px solid {Colors.PARAGRAPH_COLOR.value}",
-    "padding_y" : "0.4rem",
-    "padding_x" : "0.5rem",
-    "transition" : "all 0.3s ease",
+    "border_radius": "0.5rem",
+    "border": f"1px solid {Colors.PARAGRAPH_COLOR.value}",
+    "padding_y": "0.4rem",
+    "padding_x": "0.5rem",
+    "transition": "all 0.3s ease",
     "_focus": {
-        "border" : f"1px solid {Colors.PRIMARY_COLOR.value}",
-        "outline": f"1px solid {Colors.PRIMARY_COLOR.value}"
+        "border": f"1px solid {Colors.PRIMARY_COLOR.value}",
+        "outline": f"1px solid {Colors.PRIMARY_COLOR.value}",
     },
 }
