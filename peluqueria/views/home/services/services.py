@@ -80,4 +80,5 @@ def services() -> rx.Component:
             ],
         ),
         align="center",
+        id="services",
     )
