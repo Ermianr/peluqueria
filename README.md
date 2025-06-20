@@ -130,6 +130,60 @@ peluqueria/
 - **Problemas con las rutas**: Asegurarse de que todos los archivos `__init__.py` estén presentes en los directorios
 - **Error al ejecutar reflex**: Verificar la versión de Python y que todas las dependencias estén instaladas
 
-Este proyecto está licenciado bajo [especificar licencia]
+## Documentación de API (FastAPI)
+
+La API del backend está construida con FastAPI y proporciona documentación interactiva automáticamente generada.
+
+### Acceso a la Documentación API
+
+Cuando la aplicación está en ejecución, puedes acceder a la documentación interactiva de la API en:
+
+- **Swagger UI**: `http://localhost:8000/docs`
+  - Interfaz interactiva completa para explorar y probar los endpoints
+  - Permite enviar solicitudes directamente desde el navegador
+  - Muestra todos los modelos de datos y esquemas
+
+- **ReDoc**: `http://localhost:8000/redoc`
+  - Documentación alternativa más limpia y orientada a la lectura
+  - Ideal para consulta de referencia
+
+### Endpoints Principales
+
+La API incluye los siguientes grupos de endpoints:
+
+#### Autenticación (`/api/auth`)
+- `POST /api/auth/register` - Registro de nuevos usuarios
+- `POST /api/auth/login` - Inicio de sesión y generación de token JWT
+- `GET /api/auth/me` - Obtener información del usuario autenticado
+
+#### Usuarios (`/api/users`)
+- `GET /api/users/` - Listar usuarios (solo admin)
+- `GET /api/users/{user_id}` - Obtener detalles de un usuario
+- `PUT /api/users/{user_id}` - Actualizar información de usuario
+- `DELETE /api/users/{user_id}` - Eliminar usuario
+
+#### Servicios (`/api/services`)
+- `GET /api/services/` - Listar todos los servicios disponibles
+- `POST /api/services/` - Crear un nuevo servicio (solo admin)
+- `PUT /api/services/{service_id}` - Actualizar un servicio
+- `DELETE /api/services/{service_id}` - Eliminar un servicio
+
+#### Citas (`/api/appointments`)
+- `GET /api/appointments/` - Listar citas del usuario actual
+- `POST /api/appointments/` - Crear una nueva cita
+- `GET /api/appointments/{appointment_id}` - Ver detalles de una cita
+- `PUT /api/appointments/{appointment_id}` - Actualizar una cita
+- `DELETE /api/appointments/{appointment_id}` - Cancelar una cita
+
+### Uso de la API
+
+Para usar la API directamente:
+
+1. Obtén un token de autenticación a través del endpoint de login
+2. Incluye el token en el encabezado de autorización de tus solicitudes:
+   ```
+   Authorization: Bearer {tu_token_jwt}
+   ```
+
 
 ---
