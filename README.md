@@ -151,29 +151,22 @@ Cuando la aplicación está en ejecución, puedes acceder a la documentación in
 
 La API incluye los siguientes grupos de endpoints:
 
-#### Autenticación (`/api/auth`)
-- `POST /api/auth/register` - Registro de nuevos usuarios
-- `POST /api/auth/login` - Inicio de sesión y generación de token JWT
-- `GET /api/auth/me` - Obtener información del usuario autenticado
+#### Autenticación (`/auth`)
+- `POST /auth/login` - Inicio de sesión y generación de token JWT
+- `GET /auth/me` - Obtener información del usuario autenticado
 
-#### Usuarios (`/api/users`)
-- `GET /api/users/` - Listar usuarios (solo admin)
-- `GET /api/users/{user_id}` - Obtener detalles de un usuario
-- `PUT /api/users/{user_id}` - Actualizar información de usuario
-- `DELETE /api/users/{user_id}` - Eliminar usuario
+#### Usuarios (`/users`)
+- `GET /users/` - Listar usuarios (solo admin)
+- `GET /users/{user_id}` - Obtener detalles de un usuario
+- `POST /users` - Registrar un usuario
+- `PATCH /users/{user_id}` - Actualizar información de usuario
+- `DELETE /users/{user_id}` - Eliminar usuario
 
-#### Servicios (`/api/services`)
-- `GET /api/services/` - Listar todos los servicios disponibles
-- `POST /api/services/` - Crear un nuevo servicio (solo admin)
-- `PUT /api/services/{service_id}` - Actualizar un servicio
-- `DELETE /api/services/{service_id}` - Eliminar un servicio
-
-#### Citas (`/api/appointments`)
-- `GET /api/appointments/` - Listar citas del usuario actual
-- `POST /api/appointments/` - Crear una nueva cita
-- `GET /api/appointments/{appointment_id}` - Ver detalles de una cita
-- `PUT /api/appointments/{appointment_id}` - Actualizar una cita
-- `DELETE /api/appointments/{appointment_id}` - Cancelar una cita
+#### Servicios (`/services`)
+- `GET /services/` - Listar todos los servicios disponibles
+- `POST /services/` - Crear un nuevo servicio (solo admin)
+- `PATCH /services/{service_id}` - Actualizar un servicio
+- `DELETE /services/{service_id}` - Eliminar un servicio
 
 ### Uso de la API
 
