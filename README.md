@@ -1,6 +1,9 @@
 # Divine Peluquería - Aplicación Web
 
 Un sistema completo de gestión para peluquerías construido con Reflex, FastAPI y MongoDB. Esta aplicación permite a los usuarios registrarse, iniciar sesión, ver servicios y gestionar citas. Los administradores pueden gestionar usuarios y servicios a través de un panel de control.
+## Enlaces de interés
+
+- **Historias de Usuario** : [HUS](https://github.com/Ermianr/peluqueria/blob/main/documentos/Documento%20de%20Historias%20de%20Usuario%20-%20P%C3%A1gina%20Web%20Divine.pdf)
 
 ## Tecnologías Utilizadas
 
