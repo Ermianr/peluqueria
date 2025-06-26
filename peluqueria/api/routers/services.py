@@ -22,6 +22,12 @@ router: APIRouter = APIRouter(prefix="/services", tags=["services"])
 
 @router.post("", response_model=ServiceResponse)
 async def create_service(service: Service):
+    if await check_if_service_exist(service.name):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Service already registered by another service.",
+        )
+
     service_in_db = ServiceInDB(
         name=service.name,
         description=service.description or None,
