@@ -8,11 +8,13 @@ from jwt import InvalidTokenError
 
 from peluqueria.api.models.auth import Token
 from peluqueria.api.models.user import UserInDBResponse, UserResponse
-from peluqueria.api.utils.utils import search_user_db, verify_password
+from peluqueria.api.utils.user_utils import search_user_db
+from peluqueria.api.utils.utils import verify_password
+from peluqueria.settings import Settings
 
 ALGORITHM = "HS256"
-SECRET_KEY = "f46b520f104581cb361273ce955a5d3778435f1c6845b42f248b3680834a442d"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 3
+SECRET_KEY = Settings.HASH_PASSWORD_SECRET_KEY
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * Settings.ACCESS_TOKEN_EXPIRE_DAYS
 
 router: APIRouter = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -45,10 +47,10 @@ async def get_current_user(
             raise credentials_exception
 
         user = await search_user_db("email", email)
-    except InvalidTokenError:
-        raise credentials_exception
-    except HTTPException:
-        raise credentials_exception
+    except InvalidTokenError as exc:
+        raise credentials_exception from exc
+    except HTTPException as exc:
+        raise credentials_exception from exc
 
     return user
 
@@ -65,12 +67,12 @@ async def get_current_active_user(
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     try:
         user: UserInDBResponse = await search_user_db("email", form_data.username)
-    except HTTPException:
+    except HTTPException as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Correo incorrecto.",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
 
     if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
