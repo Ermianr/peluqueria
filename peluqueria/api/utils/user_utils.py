@@ -18,9 +18,9 @@ async def search_user(field: str, key: Any) -> UserResponse:
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
         )
-
     id_to_pydantic(user)
 
     return UserResponse.model_validate(user)
@@ -31,7 +31,8 @@ async def search_user_db(field: str, key: Any) -> UserInDBResponse:
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
         )
 
     id_to_pydantic(user)
