@@ -11,8 +11,16 @@ from peluqueria.api.models.user import (
     UserResponse,
     UserUpdateAdmin,
 )
-from peluqueria.api.schemas.user import user_response_schema, users_response_schema
-from peluqueria.api.utils.utils import check_if_user_exist, hash_password, search_user
+from peluqueria.api.utils.user_utils import (
+    check_if_user_exist,
+    get_user_or_404,
+    search_user,
+)
+from peluqueria.api.utils.utils import (
+    hash_password,
+    id_to_pydantic,
+    id_to_pydantic_loop,
+)
 
 router: APIRouter = APIRouter(prefix="/users", tags=["users"])
 
@@ -20,7 +28,7 @@ router: APIRouter = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user: UserCreate) -> UserResponse:
+async def create_user(user: UserCreate):
     if await check_if_user_exist(user.email):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="User already exist."
@@ -40,38 +48,35 @@ async def create_user(user: UserCreate) -> UserResponse:
     # Transformar UserInDB a dict para poder guardar en mongoDB
     user_dict = user_in_db.model_dump()
 
-    id = (await db.users.insert_one(user_dict)).inserted_id
-    inserted_user = user_response_schema(await db.users.find_one({"_id": id}))
-    return UserResponse(**inserted_user)
+    user_id = (await db.users.insert_one(user_dict)).inserted_id
+    user_dict["id"] = str(user_id)
+    return UserResponse.model_validate(user_dict)
 
 
 ### Buscar todos los usuarios
 
 
 @router.get("", response_model=list[UserResponse])
-async def get_users() -> list[UserResponse]:
-    return users_response_schema(
-        await db.users.find({"role": "customer"}).to_list(length=None)
-    )
-
-
-### Dependencia para buscar usuarios
-async def get_user_or_404(id: str) -> UserResponse | HTTPException:
-    return await search_user("_id", ObjectId(id))
+async def get_users():
+    users = await db.users.find({"role": "customer"}).to_list(length=None)
+    return [UserResponse.model_validate(id_to_pydantic_loop(user)) for user in users]
 
 
 ### Buscar usuarios por su ID endpoint
 
 
-@router.get("/{id}", response_model=UserResponse)
-async def get_user(user: Annotated[UserResponse, Depends(get_user_or_404)]):
+@router.get("/{user_id}", response_model=UserResponse)
+async def get_user(
+    user_id: str, user: Annotated[UserResponse, Depends(get_user_or_404)]
+):
     return user
 
 
 ### Actualizar un usuario por su ID
-@router.patch("/{id}", response_model=UserResponse)
+@router.patch("/{user_id}", response_model=UserResponse)
 async def update_user(
     user_update_data: UserUpdateAdmin,
+    user_id: str,
     user: Annotated[UserResponse, Depends(get_user_or_404)],
 ):
     update_data = user_update_data.model_dump(exclude_unset=True)
@@ -82,12 +87,15 @@ async def update_user(
             detail="No update data provided.",
         )
 
-    if "email" in update_data and update_data["email"] != user.email:
-        if check_if_user_exist(update_data["email"]):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered by another user.",
-            )
+    if (
+        "email" in update_data
+        and update_data["email"] != user.email
+        and await check_if_user_exist(update_data["email"])
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered by another user.",
+        )
 
     update_data["updated_at"] = datetime.now(timezone.utc)
 
@@ -102,17 +110,19 @@ async def update_user(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found after update."
         )
 
-    return UserResponse(**user_response_schema(updated_user_doc))
+    id_to_pydantic(updated_user_doc)
+
+    return UserResponse.model_validate(updated_user_doc)
 
 
-@router.delete("/{id}")
-async def delete_user(id: str):
+@router.delete("/{user_id}")
+async def delete_user(user_id: str):
     try:
-        await search_user("_id", ObjectId(id))
-    except HTTPException:
+        await search_user("_id", ObjectId(user_id))
+    except HTTPException as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
-        )
-    await db.users.delete_one({"_id": ObjectId(id)})
+        ) from exc
+    await db.users.delete_one({"_id": ObjectId(user_id)})
 
     return {"detail": "User deleted."}
