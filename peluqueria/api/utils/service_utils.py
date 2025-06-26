@@ -13,7 +13,8 @@ async def serach_service(field: str, key: Any) -> ServiceResponse:
 
     if not service:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Service not found."
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Service not found.",
         )
 
     id_to_pydantic(service)
