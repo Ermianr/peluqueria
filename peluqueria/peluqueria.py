@@ -1,6 +1,6 @@
 import reflex as rx
 
-from peluqueria.api.main import fastapi_app
+from peluqueria.api.main import fastapi_app, lifespan
 from peluqueria.pages.appointments import appointments
 from peluqueria.pages.dashboard import users_manage
 from peluqueria.pages.index import index
@@ -16,3 +16,5 @@ app: rx.App = rx.App(
     stylesheets=["/css/normalize.css"],
     api_transformer=fastapi_app,
 )
+
+app.register_lifespan_task(lifespan)
