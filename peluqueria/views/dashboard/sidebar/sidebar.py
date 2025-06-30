@@ -3,10 +3,6 @@ import reflex as rx
 from peluqueria.styles.styles import Colors
 
 
-class SidebarState(rx.State):
-    active_text: str = "Gestión de Usuarios"
-
-
 def sidebar_item(text: str, icon: str, href: str) -> rx.Component:
     return rx.link(
         rx.hstack(
@@ -22,7 +18,7 @@ def sidebar_item(text: str, icon: str, href: str) -> rx.Component:
                     "color": Colors.PARAGRAPH_COLOR.value,
                 },
                 "bg": rx.cond(
-                    SidebarState.active_text == text,
+                    rx.State.router.page.path == href,
                     Colors.PRIMARY_COLOR.value,
                     "transparent",
                 ),
@@ -33,16 +29,15 @@ def sidebar_item(text: str, icon: str, href: str) -> rx.Component:
         underline="none",
         weight="medium",
         width="100%",
-        on_click=lambda: SidebarState.set_active_text(text),  # type: ignore
     )
 
 
 def sidebar_items() -> rx.Component:
     return rx.vstack(
-        sidebar_item("Resumen General", "layout-dashboard", "/dashboard"),
-        sidebar_item("Gestión de Citas", "square-library", "/dashboard"),
+        sidebar_item("Resumen General", "layout-dashboard", "/dashboard/main"),
+        sidebar_item("Gestión de Citas", "calendar-check", "/dashboard/appointments"),
         sidebar_item("Gestión de Servicios", "calendar-cog", "/dashboard/services"),
-        sidebar_item("Gestión de Personal", "contact-round", "/dashboard"),
+        sidebar_item("Gestión de Personal", "contact-round", "/dashboard/employees"),
         sidebar_item("Gestión de Usuarios", "user-round", "/dashboard"),
         spacing="1",
         width="100%",
@@ -54,11 +49,12 @@ def sidebar() -> rx.Component:
         rx.desktop_only(
             rx.vstack(
                 rx.hstack(
-                    rx.heading(
+                    rx.link(
                         "divine",
                         size="7",
                         weight="bold",
                         color=Colors.CUSTOM_WHITE.value,
+                        href="/",
                     ),
                     align="center",
                     justify="start",
@@ -67,15 +63,16 @@ def sidebar() -> rx.Component:
                 ),
                 sidebar_items(),
                 spacing="5",
-                position="sticky",
+                position="fixed",
                 left="0px",
                 top="0px",
                 padding_x="1em",
                 padding_y="1.5em",
                 bg="black",
                 align="start",
-                min_height="100vh",
+                height="100vh",
                 width="16em",
+                z_index="1000",
             ),
         ),
         rx.mobile_and_tablet(

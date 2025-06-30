@@ -10,6 +10,7 @@ class Service(BaseModel):
     description: str | None = None
     duration_minutes: int
     price: int
+    img_path: str
 
 
 class ServiceInDB(Service):

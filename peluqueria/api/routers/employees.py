@@ -13,7 +13,7 @@ from peluqueria.api.models.user import (
 )
 from peluqueria.api.utils.user_utils import (
     check_if_user_exist,
-    get_customer_or_404,
+    get_employee_or_404,
     search_user,
 )
 from peluqueria.api.utils.utils import (
@@ -22,7 +22,7 @@ from peluqueria.api.utils.utils import (
     id_to_pydantic_loop,
 )
 
-router: APIRouter = APIRouter(prefix="/users", tags=["users"])
+router: APIRouter = APIRouter(prefix="/employees", tags=["employees"])
 
 ### Crear usuarios
 
@@ -31,8 +31,7 @@ router: APIRouter = APIRouter(prefix="/users", tags=["users"])
 async def create_user(user: UserCreate):
     if await check_if_user_exist(user.email):
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User already exist.",
+            status_code=status.HTTP_409_CONFLICT, detail="User already exist."
         )
     # Transformar la request al objeto UserInDB
     user_in_db = UserInDB(
@@ -40,7 +39,7 @@ async def create_user(user: UserCreate):
         last_name=user.last_name,
         email=user.email,
         phone=user.phone,
-        role="customer",
+        role="employee",
         hashed_password=hash_password(user.password),
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
@@ -49,7 +48,7 @@ async def create_user(user: UserCreate):
     # Transformar UserInDB a dict para poder guardar en mongoDB
     user_dict = user_in_db.model_dump()
 
-    user_id = (await db.users.insert_one(user_dict)).inserted_id
+    user_id = (await db.employees.insert_one(user_dict)).inserted_id
     user_dict["id"] = str(user_id)
     return UserResponse.model_validate(user_dict)
 
@@ -59,7 +58,7 @@ async def create_user(user: UserCreate):
 
 @router.get("", response_model=list[UserResponse])
 async def get_users():
-    users = await db.users.find({"role": "customer"}).to_list(length=None)
+    users = await db.employees.find({"role": "employee"}).to_list(length=None)
     return [UserResponse.model_validate(id_to_pydantic_loop(user)) for user in users]
 
 
@@ -68,7 +67,7 @@ async def get_users():
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
-    user: Annotated[UserResponse, Depends(get_customer_or_404)],
+    user: Annotated[UserResponse, Depends(get_employee_or_404)],
     user_id: str,
 ):
     return user
@@ -78,7 +77,7 @@ async def get_user(
 @router.patch("/{user_id}", response_model=UserResponse)
 async def update_user(
     user_update_data: UserUpdateAdmin,
-    user: Annotated[UserResponse, Depends(get_customer_or_404)],
+    user: Annotated[UserResponse, Depends(get_employee_or_404)],
     user_id: str,
 ):
     update_data = user_update_data.model_dump(exclude_unset=True)
@@ -101,7 +100,7 @@ async def update_user(
 
     update_data["updated_at"] = datetime.now(timezone.utc)
 
-    updated_user_doc = await db.users.find_one_and_update(
+    updated_user_doc = await db.employees.find_one_and_update(
         {"_id": ObjectId(user.id)},
         {"$set": update_data},
         return_document=True,
@@ -109,8 +108,7 @@ async def update_user(
 
     if not updated_user_doc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found after update.",
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found after update."
         )
 
     id_to_pydantic(updated_user_doc)
@@ -121,12 +119,11 @@ async def update_user(
 @router.delete("/{user_id}")
 async def delete_user(user_id: str):
     try:
-        await search_user("_id", ObjectId(user_id), "user")
+        await search_user("_id", ObjectId(user_id), "employee")
     except HTTPException as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found.",
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
         ) from exc
-    await db.users.delete_one({"_id": ObjectId(user_id)})
+    await db.employees.delete_one({"_id": ObjectId(user_id)})
 
     return {"detail": "User deleted."}

@@ -3,7 +3,6 @@ from typing import TypedDict
 import httpx
 import reflex as rx
 
-from peluqueria.components.route_guard import employee_only_guard
 from peluqueria.settings import Settings
 from peluqueria.styles.styles import SOLID_BUTTON
 from peluqueria.views.dashboard.sidebar.sidebar import sidebar
@@ -28,7 +27,7 @@ class UsersManageState(rx.State):
     async def get_users(self):
         try:
             async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
-                response = await client.get("/users")
+                response = await client.get("/employees")
 
                 if response.status_code == 200:
                     self.users = response.json()
@@ -76,7 +75,7 @@ class ModalState(rx.State):
         try:
             async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
                 response = await client.patch(
-                    f"/users/{self.user_id}", json=sanitized_request
+                    f"/employees/{self.user_id}", json=sanitized_request
                 )
 
                 if response.status_code == 200:
@@ -95,14 +94,40 @@ class ModalState(rx.State):
     async def delete_user(self):
         try:
             async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
-                response = await client.delete(f"/users/{self.user_id}")
+                response = await client.delete(f"/employees/{self.user_id}")
 
                 if response.status_code == 200:
                     yield rx.toast.success("Usuario eliminado correctamente")
-                    yield rx.redirect("/dashboard")
+                    yield rx.redirect("/dashboard/employees")
                 else:
                     yield rx.toast.error(
                         f"Error: Error en la consulta {response.status_code}"
+                    )
+        except httpx.RequestError:
+            yield rx.toast.error("Error: Error de conexión al servidor")
+        except Exception:
+            yield rx.toast.error("Error: Error inesperado")
+
+
+class CreateModalState(rx.State):
+    @rx.event
+    async def create_user(self, form_data: dict):
+        if form_data.get("password") != form_data.get("password2"):
+            yield rx.toast.error("Error: Las contraseñas no coinciden")
+            return
+        else:
+            form_data.pop("password2", None)
+
+        try:
+            async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
+                response = await client.post("/employees", json=form_data)
+
+                if response.status_code == 201:
+                    yield rx.toast.success("Empleado creado correctamente")
+                    yield rx.redirect("/dashboard/employees")
+                else:
+                    yield rx.toast.error(
+                        f"Error: Error en la consulta {response.status_code}",
                     )
         except httpx.RequestError:
             yield rx.toast.error("Error: Error de conexión al servidor")
@@ -215,16 +240,16 @@ def delete_user_alert() -> rx.Component:
 
 
 @rx.page(
-    route="/dashboard",
-    title="Dashboard | Gestión de Usuarios",
+    route="/dashboard/employees",
+    title="Dashboard | Gestión de Empleados",
     meta=[
         {"char_set": "UTF-8"},
         {"name": "theme_color", "content": "black"},
     ],
     on_load=UsersManageState.get_users,
 )
-def users_manage() -> rx.Component:
-    content = rx.hstack(
+def employees_manage() -> rx.Component:
+    return rx.hstack(
         sidebar(),
         rx.box(
             users_table(),
@@ -233,7 +258,6 @@ def users_manage() -> rx.Component:
             max_width="calc(100vw - 16em)",
         ),
     )
-    return employee_only_guard(content)
 
 
 def show_user(user) -> rx.Component:
@@ -260,9 +284,14 @@ def show_user(user) -> rx.Component:
 
 def users_table() -> rx.Component:
     return rx.flex(
-        rx.box(
-            rx.heading("Administrar Usuarios"),
-            rx.text("Una forma sencilla de administrar usuarios y ver sus datos"),
+        rx.flex(
+            rx.box(
+                rx.heading("Administrar Empleados"),
+                rx.text("Crea, edita o elimina empleados de tu negocio"),
+            ),
+            create_employee(),
+            align="center",
+            justify="between",
             padding="2rem",
         ),
         rx.separator(),
@@ -288,4 +317,74 @@ def users_table() -> rx.Component:
         width="100%",
         direction="column",
         spacing="3",
+    )
+
+
+def create_employee() -> rx.Component:
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            rx.button(
+                "Crear empleado",
+                style=SOLID_BUTTON,
+            ),
+        ),
+        rx.dialog.content(
+            rx.dialog.title(
+                "Crear un empleado",
+            ),
+            rx.dialog.description(
+                "Crea un empleado y dale acceso",
+                margin_bottom="1rem",
+            ),
+            rx.form(
+                rx.flex(
+                    rx.input(placeholder="Nombres del empleado", name="first_name"),
+                    rx.input(
+                        placeholder="Apellidos del empleado",
+                        name="last_name",
+                    ),
+                    rx.input(
+                        placeholder="Email del empleado",
+                        name="email",
+                        type="email",
+                    ),
+                    rx.input(
+                        placeholder="Teléfono del empleado",
+                        name="phone",
+                        type="tel",
+                    ),
+                    rx.input(
+                        placeholder="Contraseña del empleado",
+                        name="password",
+                        type="password",
+                    ),
+                    rx.input(
+                        placeholder="Repite la contraseña del empleado",
+                        name="password2",
+                        type="password",
+                    ),
+                    rx.flex(
+                        rx.dialog.close(
+                            rx.button(
+                                "Cancelar",
+                                variant="soft",
+                                type="button",
+                                color_scheme="gray",
+                                cursor="pointer",
+                            ),
+                        ),
+                        rx.dialog.close(
+                            rx.button("Crear", type="submit", cursor="pointer"),
+                        ),
+                        spacing="3",
+                        justify="end",
+                    ),
+                    direction="column",
+                    spacing="4",
+                ),
+                on_submit=CreateModalState.create_user,
+                reset_on_submit=False,
+            ),
+            max_width="450px",
+        ),
     )

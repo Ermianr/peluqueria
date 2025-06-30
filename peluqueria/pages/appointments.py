@@ -4,7 +4,7 @@ from peluqueria.components.footer import footer
 from peluqueria.components.navbar import navbar
 from peluqueria.utils import lang
 from peluqueria.views.appointments.appointment_dashboard.appointment_dashboard import (
-    appointment_dashboard,
+    appointments_table,
 )
 
 
@@ -22,7 +22,7 @@ def appointments() -> rx.Component:
         lang(),
         navbar(),
         rx.box(
-            appointment_dashboard(),
+            appointments_table(),
             width="100%",
         ),
         footer(),

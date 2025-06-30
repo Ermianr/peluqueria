@@ -1,8 +1,8 @@
 import httpx
 import reflex as rx
-from reflex.event import EventSpec
 
 from peluqueria.settings import Settings
+from peluqueria.views.home.services.services import ServicesState
 
 
 class AuthState(rx.State):
@@ -17,6 +17,18 @@ class AuthState(rx.State):
     user_data: dict = {}
     loading: bool = False
     loading_auth: bool = True
+
+    @rx.var
+    def user_role(self) -> str:
+        return self.user_data.get("role", "")
+
+    @rx.var
+    def is_customer(self) -> bool:
+        return self.user_role == "customer"
+
+    @rx.var
+    def is_employee(self) -> bool:
+        return self.user_role == "employee"
 
     # Obtener datos del usuario
     @rx.event
@@ -70,8 +82,14 @@ class AuthState(rx.State):
                     self.user_data = response.json()
                     self.is_authenticated = True
                     self.access_token = self.user_data["access_token"]
-                    yield rx.toast.success("Ingreso exitoso")
-                    yield rx.redirect("/")
+                    await self.get_user_data()
+                    print(f"Acceso exitoso: {self.user_data}")
+                    if self.user_data.get("role") == "customer":
+                        yield rx.toast.success("Ingreso exitoso")
+                        yield rx.redirect("/citas")
+                    else:
+                        yield rx.toast.success("Ingreso exitoso")
+                        yield rx.redirect("/dashboard")
                 else:
                     error_detail = response.json().get("detail", "Error de ingreso")
                     yield rx.toast.error(f"Error: {error_detail}")
@@ -104,7 +122,13 @@ class AuthState(rx.State):
         await self.get_user_data()
 
     @rx.event
-    def check_auth_protect_login(self) -> EventSpec | None:
+    def check_auth_protect_login(self):
         self.loading_auth = False
         if self.is_authenticated:
             return rx.redirect("/")
+
+    @rx.event
+    async def home_state(self):
+        self.check_auth_protect_login()
+        get_services = await self.get_state(ServicesState)
+        await get_services.get_services()

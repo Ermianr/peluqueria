@@ -20,7 +20,7 @@ from peluqueria.api.utils.utils import id_to_pydantic, id_to_pydantic_loop
 router: APIRouter = APIRouter(prefix="/services", tags=["services"])
 
 
-@router.post("", response_model=ServiceResponse)
+@router.post("", response_model=ServiceResponse, status_code=status.HTTP_201_CREATED)
 async def create_service(service: Service):
     if await check_if_service_exist(service.name):
         raise HTTPException(
@@ -35,6 +35,7 @@ async def create_service(service: Service):
         price=service.price,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
+        img_path=service.img_path,
     )
 
     service_dict = service_in_db.model_dump()

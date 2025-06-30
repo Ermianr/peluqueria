@@ -37,6 +37,13 @@ def navbar_desktop():
                         AuthState.user_data.get("first_name", "Usuario"),
                         color=Colors.CUSTOM_WHITE.value,
                     ),
+                    rx.link(
+                        rx.el.button(
+                            "Mis Citas",
+                            style=SIMPLE_BUTTON,
+                        ),
+                        href="/citas",
+                    ),
                     rx.el.button(
                         "Cerrar Sesión",
                         style=OUTLINE_BUTTON,

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from peluqueria.api.db.db_connect import create_indexes
-from peluqueria.api.routers import auth, services, users
+from peluqueria.api.routers import appointments, auth, employees, services, users
 
 
 @asynccontextmanager
@@ -17,3 +17,5 @@ fastapi_app: FastAPI = FastAPI()
 fastapi_app.include_router(users.router)
 fastapi_app.include_router(auth.router)
 fastapi_app.include_router(services.router)
+fastapi_app.include_router(employees.router)
+fastapi_app.include_router(appointments.router)

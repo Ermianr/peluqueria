@@ -23,8 +23,14 @@ def hero() -> rx.Component:
                 text_align="center",
             ),
             rx.hstack(
-                rx.el.button("Explorar Servicios", style=SOLID_BUTTON),
-                rx.el.button("Agendar Cita", style=OUTLINE_WHITE),
+                rx.link(
+                    rx.el.button("Explorar Servicios", style=SOLID_BUTTON),
+                    href="/ingreso",
+                ),
+                rx.link(
+                    rx.el.button("Agendar Cita", style=OUTLINE_WHITE),
+                    href="/ingreso",
+                ),
             ),
             align="center",
             width=rx.breakpoints(initial="90%", lg="50%"),

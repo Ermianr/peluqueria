@@ -1,1 +1,1 @@
-from peluqueria.views.dashboard import users_manage
+from peluqueria.views.dashboard import main_dashboard

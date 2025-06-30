@@ -66,7 +66,10 @@ async def get_current_active_user(
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     try:
-        user: UserInDBResponse = await search_user_db("email", form_data.username)
+        user: UserInDBResponse = await search_user_db(
+            "email",
+            form_data.username,
+        )
     except HTTPException as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

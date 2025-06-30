@@ -18,7 +18,7 @@ from peluqueria.views.home.services.services import services
         {"char_set": "UTF-8"},
         {"name": "theme_color", "content": "black"},
     ],
-    on_load=AuthState.check_auth,
+    on_load=AuthState.home_state,
 )
 def index() -> rx.Component:
     return rx.vstack(

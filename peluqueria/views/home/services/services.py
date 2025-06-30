@@ -1,48 +1,42 @@
+import os
+
+import httpx
 import reflex as rx
 
+from peluqueria.settings import Settings
 from peluqueria.styles.styles import Colors
 
 
 class ServicesState(rx.State):
-    list_services: list[dict[str, str]] = [
-        {
-            "img": "serv_1.webp",
-            "title": "Corte y Peinado",
-            "text": "Cortes de precisión y peinados adaptados para realzar tus rasgos únicos y tu estilo personal.",
-        },
-        {
-            "img": "serv_2.webp",
-            "title": "Color y Mechas",
-            "text": "Fórmulas de color personalizadas para crear dimensión, profundidad y resultados vibrantes y duraderos.",
-        },
-        {
-            "img": "serv_3.webp",
-            "title": "Tratamiento y Terapia",
-            "text": "Tratamientos rejuvenecedores para restaurar la salud del cabello, su brillo y vitalidad usando productos premium.",
-        },
-        {
-            "img": "serv_4.webp",
-            "title": "Extensiones",
-            "text": "Extensiones de cabello de calidad premium aplicadas con precisión para obtener un largo y volumen de aspecto natural.",
-        },
-        {
-            "img": "serv_5.webp",
-            "title": "Servicios para Novias",
-            "text": "Paquetes completos para novias que incluyen pruebas, peinado el día de la boda y colocación de accesorios.",
-        },
-        {
-            "img": "serv_6.webp",
-            "title": "Tratamiento de Keratina",
-            "text": "Tratamientos alisadores que eliminan el frizz y añaden un brillo increíble y facilidad de manejo.",
-        },
-    ]
+    list_services: list[dict[str, str]] = []
+
+    @rx.event
+    async def get_services(self):
+        try:
+            async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
+                response = await client.get("/services")
+                if response.status_code == 200:
+                    self.list_services = [
+                        {
+                            "title": service["name"],
+                            "text": service["description"],
+                            "img": os.path.basename(service["img_path"]),
+                        }
+                        for service in response.json()
+                    ]
+                else:
+                    print(f"Error al cargar los servicios: {response.status_code}")
+        except httpx.RequestError:
+            print("Error de conexión al servidor")
+        except Exception:
+            print("Error inesperado al cargar los servicios")
 
 
 def service_card(service) -> rx.Component:
     return rx.card(
         rx.inset(
             rx.image(
-                src=f"/img/{service['img']}",
+                src=rx.get_upload_url(service["img"]),
                 width="100%",
                 height="auto",
             ),
