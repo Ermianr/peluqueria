@@ -220,6 +220,48 @@ class CreateModalState(rx.State):
             yield rx.toast.error(f"Error inesperado: {e!s}")
 
 
+class CancelModalState(rx.State):
+    appointment_id: str = ""
+    appointment_info: str = ""
+
+    @rx.event
+    def set_appointment_data(self, appointment_id: str, appointment_info: str):
+        self.appointment_id = appointment_id
+        self.appointment_info = appointment_info
+
+    @rx.event
+    async def cancel_appointment(self):
+        try:
+            auth_state = await self.get_state(AuthState)
+            if not auth_state.is_authenticated:
+                yield rx.toast.error("Error: Debe iniciar sesión")
+                return
+
+            async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
+                response = await client.patch(
+                    f"/appointments/{self.appointment_id}",
+                    json={"state": "cancelled"},
+                    headers={"Authorization": f"Bearer {auth_state.access_token}"},
+                )
+
+                if response.status_code == HTTP_200_OK:
+                    yield rx.toast.success("Cita cancelada correctamente")
+                    yield AppointmentManageState.get_appointments
+                else:
+                    error_msg = "Error al cancelar la cita"
+                    try:
+                        error_detail = response.json().get("detail", error_msg)
+                        yield rx.toast.error(f"Error: {error_detail}")
+                    except Exception:
+                        yield rx.toast.error(
+                            f"Error: {error_msg} ({response.status_code})"
+                        )
+        except httpx.RequestError:
+            yield rx.toast.error("Error: Error de conexión al servidor")
+        except Exception:
+            yield rx.toast.error("Error: Error inesperado al cancelar la cita")
+
+
 def service_chip(service: Service) -> rx.Component:
     return rx.badge(
         f"{service['name']} - ${service['price']}",
@@ -443,6 +485,8 @@ def appointments_table() -> rx.Component:
                     rx.table.column_header_cell("Servicios"),
                     rx.table.column_header_cell("Fecha del Servicio"),
                     rx.table.column_header_cell("Costo Total"),
+                    rx.table.column_header_cell("Estado"),
+                    rx.table.column_header_cell("Acción"),
                 ),
             ),
             rx.table.body(
@@ -475,6 +519,32 @@ def appointments_table() -> rx.Component:
                                 color="green",
                             ),
                         ),
+                        rx.table.cell(
+                            rx.badge(
+                                rx.cond(
+                                    appointment["state"] == "cancelled",
+                                    "Cancelada",
+                                    rx.cond(
+                                        appointment["state"] == "completed",
+                                        "Completada",
+                                        "Pendiente",
+                                    ),
+                                ),
+                                color_scheme=rx.cond(
+                                    appointment["state"] == "cancelled",
+                                    "red",
+                                    rx.cond(
+                                        appointment["state"] == "completed",
+                                        "green",
+                                        "blue",
+                                    ),
+                                ),
+                                size="2",
+                            ),
+                        ),
+                        rx.table.cell(
+                            cancel_appointment_button(appointment),
+                        ),
                     ),
                 ),
             ),
@@ -487,6 +557,78 @@ def appointments_table() -> rx.Component:
         padding_x="4rem",
         padding_y="2rem",
         on_mount=[AuthState.check_auth, AppointmentManageState.get_appointments],
+        min_height="40vh",
     )
 
     return authenticated_only_guard(content)
+
+
+def cancel_appointment_button(appointment: dict) -> rx.Component:
+    appointment_info = (
+        f"{appointment['employee_name']} - {appointment['appointment_date']}"
+    )
+    return rx.cond(
+        appointment["state"] == "pending",
+        rx.alert_dialog.root(
+            rx.alert_dialog.trigger(
+                rx.button(
+                    "Cancelar",
+                    color_scheme="red",
+                    variant="solid",
+                    size="2",
+                    cursor="pointer",
+                    on_click=CancelModalState.set_appointment_data(
+                        appointment["id"], appointment_info
+                    ),
+                ),
+            ),
+            rx.alert_dialog.content(
+                rx.alert_dialog.title("Cancelar cita"),
+                rx.alert_dialog.description(
+                    f"¿Estás seguro de que deseas cancelar la cita con {appointment_info}? "
+                    "Esta acción no se puede deshacer.",
+                    size="2",
+                ),
+                rx.flex(
+                    rx.alert_dialog.cancel(
+                        rx.button(
+                            "No cancelar",
+                            variant="soft",
+                            color_scheme="gray",
+                            cursor="pointer",
+                        ),
+                    ),
+                    rx.alert_dialog.action(
+                        rx.button(
+                            "Sí, cancelar cita",
+                            color_scheme="red",
+                            variant="solid",
+                            cursor="pointer",
+                            on_click=CancelModalState.cancel_appointment,
+                        ),
+                    ),
+                    spacing="3",
+                    margin_top="16px",
+                    justify="end",
+                ),
+                style={"max_width": 450},
+            ),
+        ),
+        rx.badge(
+            rx.cond(
+                appointment["state"] == "cancelled",
+                "Cancelada",
+                appointment["state"].title(),
+            ),
+            color_scheme=rx.cond(
+                appointment["state"] == "cancelled",
+                "red",
+                rx.cond(
+                    appointment["state"] == "completed",
+                    "green",
+                    "blue",
+                ),
+            ),
+            size="2",
+        ),
+    )

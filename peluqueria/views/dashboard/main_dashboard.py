@@ -6,6 +6,7 @@ import reflex as rx
 
 from peluqueria.components.route_guard import employee_only_guard
 from peluqueria.settings import Settings
+from peluqueria.state.global_state import AuthState
 from peluqueria.views.dashboard.components.charts import dashboard_charts
 from peluqueria.views.dashboard.sidebar.sidebar import sidebar
 
@@ -86,6 +87,34 @@ class MainDashboardState(rx.State):
             yield rx.toast.error(f"Error inesperado: {e!s}")
         finally:
             self.is_loading = False
+
+    @rx.event
+    async def generate_pdf_report(self):
+        try:
+            auth_state = await self.get_state(AuthState)
+            token = auth_state.access_token
+            if not token:
+                yield rx.toast.error("No hay sesión activa")
+                return
+
+            async with httpx.AsyncClient(
+                base_url=Settings.API_BACKEND_URL,
+                headers={"Authorization": f"Bearer {token}"},
+            ) as client:
+                response = await client.get("/dashboard-report")
+
+                if response.status_code == HTTP_OK:
+                    yield rx.download(
+                        data=response.content,
+                        filename=f"dashboard_report_{datetime.now(tz=timezone.utc).strftime('%Y%m%d_%H%M%S')}.pdf",
+                    )
+                    yield rx.toast.success("Reporte PDF generado exitosamente")
+                else:
+                    yield rx.toast.error("Error al generar el reporte PDF")
+        except httpx.RequestError:
+            yield rx.toast.error("Error de conexión al servidor")
+        except Exception as e:
+            yield rx.toast.error(f"Error inesperado: {e!s}")
 
 
 def metric_card(title: str, value: str, icon: str, color: str) -> rx.Component:
@@ -183,7 +212,7 @@ def quick_actions() -> rx.Component:
                         size="3",
                         variant="outline",
                     ),
-                    href="/dashboard",
+                    href="/dashboard/users",
                 ),
                 rx.link(
                     rx.button(
@@ -194,6 +223,14 @@ def quick_actions() -> rx.Component:
                         variant="outline",
                     ),
                     href="/dashboard/services",
+                ),
+                rx.button(
+                    rx.icon("file-text", size=16),
+                    "Generar Reporte PDF",
+                    color_scheme="orange",
+                    size="3",
+                    variant="outline",
+                    on_click=MainDashboardState.generate_pdf_report,
                 ),
                 spacing="3",
                 wrap="wrap",
@@ -277,7 +314,7 @@ def dashboard_content() -> rx.Component:
 
 
 @rx.page(
-    route="/dashboard/main",
+    route="/dashboard",
     title="Dashboard Principal | Peluquería",
     meta=[
         {"char_set": "UTF-8"},

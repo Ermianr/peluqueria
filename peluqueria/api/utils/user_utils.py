@@ -16,7 +16,7 @@ async def check_if_user_exist(email: str) -> bool:
 
 async def search_user(field: str, key: Any, user_type: str) -> UserResponse:
     data = {}
-    if user_type == "user":
+    if user_type == "employee":
         data = await db.employees.find_one({field: key})
     else:
         data = await db.users.find_one({field: key})

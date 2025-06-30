@@ -34,11 +34,11 @@ def sidebar_item(text: str, icon: str, href: str) -> rx.Component:
 
 def sidebar_items() -> rx.Component:
     return rx.vstack(
-        sidebar_item("Resumen General", "layout-dashboard", "/dashboard/main"),
+        sidebar_item("Resumen General", "layout-dashboard", "/dashboard"),
         sidebar_item("Gestión de Citas", "calendar-check", "/dashboard/appointments"),
         sidebar_item("Gestión de Servicios", "calendar-cog", "/dashboard/services"),
         sidebar_item("Gestión de Personal", "contact-round", "/dashboard/employees"),
-        sidebar_item("Gestión de Usuarios", "user-round", "/dashboard"),
+        sidebar_item("Gestión de Usuarios", "user-round", "/dashboard/users"),
         spacing="1",
         width="100%",
     )

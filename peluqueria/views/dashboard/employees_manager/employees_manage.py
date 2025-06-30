@@ -42,70 +42,47 @@ class UsersManageState(rx.State):
             yield rx.toast.error("Error: Error inesperado")
 
 
-class ModalState(rx.State):
+class DeleteModalState(rx.State):
     user_id: str = ""
-    select_state: str = "Activo"
-    select_bool_state: bool = True
+    user_name: str = ""
 
     @rx.event
-    def change_select(self, value: str) -> None:
-        self.select_state = value
-        if self.select_state == "Activo":
-            self.select_bool_state = True
-        else:
-            self.select_bool_state = False
-
-    @rx.event
-    def set_user_id(self, id: str) -> None:
-        self.user_id = id
-
-    @rx.event
-    async def update_user(self, form_data: dict):
-        sanitized_request = {}
-
-        for key, value in form_data.items():
-            if value:
-                if key in ("first_name", "last_name"):
-                    sanitized_request[key] = str(value).capitalize()
-                else:
-                    sanitized_request[key] = value
-
-        sanitized_request["is_active"] = self.select_bool_state
-
-        try:
-            async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
-                response = await client.patch(
-                    f"/employees/{self.user_id}", json=sanitized_request
-                )
-
-                if response.status_code == 200:
-                    yield rx.toast.success("Usuario actualizado correctamente")
-                    yield rx.redirect("/dashboard")
-                else:
-                    yield rx.toast.error(
-                        f"Error: Error en la consulta {response.status_code}"
-                    )
-        except httpx.RequestError:
-            yield rx.toast.error("Error: Error de conexión al servidor")
-        except Exception:
-            yield rx.toast.error("Error: Error inesperado")
+    def set_user_data(self, user_id: str, user_name: str) -> None:
+        self.user_id = user_id
+        self.user_name = user_name
 
     @rx.event
     async def delete_user(self):
         try:
             async with httpx.AsyncClient(base_url=Settings.API_BACKEND_URL) as client:
+                print(f"Intentando eliminar usuario con ID: {self.user_id}")
+                print(
+                    f"URL completa: {Settings.API_BACKEND_URL}/employees/{self.user_id}"
+                )
+
                 response = await client.delete(f"/employees/{self.user_id}")
 
+                print(f"Código de respuesta: {response.status_code}")
+                print(f"Respuesta completa: {response.text}")
+
                 if response.status_code == 200:
-                    yield rx.toast.success("Usuario eliminado correctamente")
-                    yield rx.redirect("/dashboard/employees")
+                    yield rx.toast.success("Empleado eliminado correctamente")
+                    yield UsersManageState.get_users
                 else:
-                    yield rx.toast.error(
-                        f"Error: Error en la consulta {response.status_code}"
-                    )
-        except httpx.RequestError:
+                    error_msg = f"Error {response.status_code}"
+                    try:
+                        error_detail = response.json().get(
+                            "detail", "Error desconocido"
+                        )
+                        error_msg = f"Error {response.status_code}: {error_detail}"
+                    except:
+                        pass
+                    yield rx.toast.error(error_msg)
+        except httpx.RequestError as e:
+            print(f"Error de conexión: {e}")
             yield rx.toast.error("Error: Error de conexión al servidor")
-        except Exception:
+        except Exception as e:
+            print(f"Error inesperado: {e}")
             yield rx.toast.error("Error: Error inesperado")
 
 
@@ -135,81 +112,27 @@ class CreateModalState(rx.State):
             yield rx.toast.error("Error: Error inesperado")
 
 
-def modal(
-    id: str, first_name: str, last_name: str, email: str, phone: str, is_active: bool
+def delete_employee_button(
+    user_id: str, first_name: str, last_name: str
 ) -> rx.Component:
-    return rx.dialog.root(
-        rx.dialog.trigger(
-            rx.button(
-                "Gestionar",
-                style=SOLID_BUTTON,
-                padding_y="0.5rem",
-                on_click=ModalState.set_user_id(id),
-            ),
-        ),
-        rx.dialog.content(
-            rx.dialog.title(
-                "Gestionar Usuario",
-            ),
-            rx.dialog.description(
-                f"{first_name} {last_name} - ID ({id})", margin_bottom="1rem"
-            ),
-            rx.form(
-                rx.flex(
-                    rx.input(placeholder=first_name, name="first_name"),
-                    rx.input(
-                        placeholder=last_name,
-                        name="last_name",
-                    ),
-                    rx.input(
-                        placeholder=email,
-                        name="email",
-                    ),
-                    rx.input(
-                        placeholder=phone,
-                        name="phone",
-                    ),
-                    rx.select(
-                        ["Activo", "Inactivo"],
-                        value=ModalState.select_state,
-                        on_change=ModalState.change_select,
-                    ),
-                    rx.flex(
-                        rx.dialog.close(
-                            rx.button(
-                                "Cancelar",
-                                variant="soft",
-                                color_scheme="gray",
-                                cursor="pointer",
-                            ),
-                        ),
-                        delete_user_alert(),
-                        rx.dialog.close(
-                            rx.button("Editar", type="submit", cursor="pointer"),
-                        ),
-                        spacing="3",
-                        justify="end",
-                    ),
-                    direction="column",
-                    spacing="4",
-                ),
-                on_submit=ModalState.update_user,
-                reset_on_submit=False,
-            ),
-            max_width="450px",
-        ),
-    )
-
-
-def delete_user_alert() -> rx.Component:
+    full_name = f"{first_name} {last_name}"
     return rx.alert_dialog.root(
         rx.alert_dialog.trigger(
-            rx.button("Eliminar Permanentemente", color_scheme="red", cursor="pointer"),
+            rx.button(
+                "Eliminar",
+                color_scheme="red",
+                variant="solid",
+                cursor="pointer",
+                padding_y="0.5rem",
+                on_click=DeleteModalState.set_user_data(user_id, full_name),
+            ),
         ),
         rx.alert_dialog.content(
-            rx.alert_dialog.title("Eliminar usuario"),
+            rx.alert_dialog.title("Eliminar empleado"),
             rx.alert_dialog.description(
-                "¿Estás seguro? Una vez borrado no tendrá recuperación, se recomienda inactivar el usuario para no perder datos",
+                f"¿Estás seguro de que deseas eliminar a {full_name}? "
+                "Esta acción no se puede deshacer y se perderán "
+                "todos los datos asociados.",
                 size="2",
             ),
             rx.flex(
@@ -227,7 +150,7 @@ def delete_user_alert() -> rx.Component:
                         color_scheme="red",
                         variant="solid",
                         cursor="pointer",
-                        on_click=ModalState.delete_user,
+                        on_click=DeleteModalState.delete_user,
                     ),
                 ),
                 spacing="3",
@@ -260,7 +183,7 @@ def employees_manage() -> rx.Component:
     )
 
 
-def show_user(user) -> rx.Component:
+def show_user(user: dict) -> rx.Component:
     return rx.table.row(
         rx.table.row_header_cell(f"{user['first_name']} {user['last_name']}"),
         rx.table.cell(user["email"]),
@@ -269,13 +192,10 @@ def show_user(user) -> rx.Component:
         rx.table.cell(user["updated_at"]),
         rx.table.cell(user["is_active"]),
         rx.table.cell(
-            modal(
+            delete_employee_button(
                 user["id"],
                 user["first_name"],
                 user["last_name"],
-                user["email"],
-                user["phone"],
-                user["is_active"],
             )
         ),
         align="center",
@@ -305,7 +225,7 @@ def users_table() -> rx.Component:
                         rx.table.column_header_cell("Creado en"),
                         rx.table.column_header_cell("Actualizado en"),
                         rx.table.column_header_cell("Activo"),
-                        rx.table.column_header_cell("Acciones"),
+                        rx.table.column_header_cell("Eliminar"),
                     ),
                 ),
                 rx.table.body(rx.foreach(UsersManageState.users, show_user)),

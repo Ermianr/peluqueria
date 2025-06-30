@@ -83,7 +83,6 @@ class AuthState(rx.State):
                     self.is_authenticated = True
                     self.access_token = self.user_data["access_token"]
                     await self.get_user_data()
-                    print(f"Acceso exitoso: {self.user_data}")
                     if self.user_data.get("role") == "customer":
                         yield rx.toast.success("Ingreso exitoso")
                         yield rx.redirect("/citas")

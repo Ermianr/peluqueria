@@ -215,7 +215,7 @@ def delete_user_alert() -> rx.Component:
 
 
 @rx.page(
-    route="/dashboard",
+    route="/dashboard/users",
     title="Dashboard | Gestión de Usuarios",
     meta=[
         {"char_set": "UTF-8"},
