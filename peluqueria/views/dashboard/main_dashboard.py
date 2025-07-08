@@ -78,7 +78,6 @@ class MainDashboardState(rx.State):
                     self.most_used_service = most_used_service
                     self.appointments_today = appointments_today
                     self.active_users = active_users
-                    yield rx.toast.success("Métricas cargadas correctamente")
                 else:
                     yield rx.toast.error("Error al cargar algunas métricas")
         except httpx.RequestError:
